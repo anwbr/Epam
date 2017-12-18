@@ -1,11 +1,6 @@
 ﻿using OpenQA.Selenium;
-using OpenQA.Selenium.Support.PageObjects;
 using OpenQA.Selenium.Support.UI;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using OpenQA.Selenium.Support.PageObjects;
 
 namespace lab5.Pages
 {
@@ -36,7 +31,9 @@ namespace lab5.Pages
         [FindsBy(How = How.Id, Using = "cookieConsentAccept")]
         private IWebElement buttonAcceptCookie;
 
-        
+        [FindsBy(How = How.XPath, Using = "//SPAN[@aria-hidden='true'][text()='One way']")]
+        private IWebElement buttonInOneWay;
+
         public HomePage(IWebDriver driver)
         {
             this.driver = driver;
@@ -48,29 +45,46 @@ namespace lab5.Pages
             driver.Navigate().GoToUrl(BASE_URL);
         }
 
-        public void ClickOnSearchButton()
+        public void SearchInManyPlace(string from, string to, string numberOfPassangers, string departDate, string returnDate)
         {
-            buttonSearch.Click();
-        }
-
-        public void Search(string from, string to, string numberOfPassangers, string departDate, string returnDate)
-        {
-            ClearValue();
+            ClearValue(InOneWay: false);
             inputFrom.SendKeys(from);
             inputTo.SendKeys(to);
             selectNumberList.SendKeys(numberOfPassangers);
             inputDepart.SendKeys(departDate);
             inputReturn.SendKeys(returnDate);
-            buttonSearch.Click();
-            System.Threading.Thread.Sleep(13000);
+            IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
+            js.ExecuteScript("arguments[0].click();", buttonSearch);
         }
 
-        public void ClearValue()
+        public void SearchInOnePlace(string from, string to, string numberOfPassangers, string departDate)
         {
-            buttonAcceptCookie.Click();
-            inputFrom.Clear();
-            inputDepart.Clear();
-            inputReturn.Clear();
+            ClearValue(InOneWay: true);
+            inputFrom.SendKeys(from);
+            inputTo.SendKeys(to);
+            selectNumberList.SendKeys(numberOfPassangers);
+            inputDepart.SendKeys(departDate);
+            IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
+            js.ExecuteScript("arguments[0].click();", buttonSearch);
         }
+
+        public void ClearValue(bool InOneWay)
+        {
+            if (InOneWay)
+            {
+                buttonAcceptCookie.Click();
+                buttonInOneWay.Click();
+                inputFrom.Clear();
+                inputDepart.Clear();
+            }
+            else
+            {
+                buttonAcceptCookie.Click();
+                inputFrom.Clear();
+                inputDepart.Clear();
+                inputReturn.Clear();
+            }
+        }
+
     }
 }
